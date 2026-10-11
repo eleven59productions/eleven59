@@ -3896,22 +3896,16 @@
 
     audio.volume = .65;
 
-    const DAY_THEME_SRC =
-      "/media/eleven59-theme.mp3";
-
-    const SUNSET_THEME_SRC =
-      "/media/asset-1.mp3";
+    const THEME_SCHEDULE = Object.freeze({
+      timeZone: "America/Los_Angeles",
+      sunrise: Object.freeze({ startHour: 9, source: "/media/eleven59-theme.mp3", bpm: 120 }),
+      sunset: Object.freeze({ startHour: 17, source: "/media/asset-1.mp3", bpm: 110 })
+    });
 
     const LOS_ANGELES_COORDS = {
       lat: 34.0522,
       lon: -118.2437
     };
-
-    const DAY_IDENTITY_BPM =
-      120;
-
-    const SUNSET_IDENTITY_BPM =
-      110;
 
     let sunsetModeActive =
       false;
@@ -4207,7 +4201,7 @@
           new Intl.DateTimeFormat(
             "en-US",
             {
-              timeZone: "America/Los_Angeles",
+              timeZone: THEME_SCHEDULE.timeZone,
               hour: "2-digit",
               hourCycle: "h23"
             }
@@ -4215,8 +4209,8 @@
           .format(date)
         );
 
-      return losAngelesHour >= 17 ||
-        losAngelesHour < 9;
+      return losAngelesHour >= THEME_SCHEDULE.sunset.startHour ||
+        losAngelesHour < THEME_SCHEDULE.sunrise.startHour;
 
     }
 
@@ -4305,8 +4299,8 @@
 
       switchThemeAudio(
         sunsetModeActive
-          ? SUNSET_THEME_SRC
-          : DAY_THEME_SRC
+          ? THEME_SCHEDULE.sunset.source
+          : THEME_SCHEDULE.sunrise.source
       );
 
     }
@@ -4316,8 +4310,8 @@
 
       const bpm =
         sunsetModeActive
-          ? SUNSET_IDENTITY_BPM
-          : DAY_IDENTITY_BPM;
+          ? THEME_SCHEDULE.sunset.bpm
+          : THEME_SCHEDULE.sunrise.bpm;
 
       return 60 / bpm;
 
@@ -10893,6 +10887,12 @@
     );
 
     updateTime();
+
+    // Recheck immediately when a suspended/background tab becomes active.
+    window.addEventListener("focus", () => applySunsetTheme());
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) applySunsetTheme();
+    });
 
     setInterval(
       updateTime,
