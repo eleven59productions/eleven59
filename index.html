@@ -1054,7 +1054,7 @@
 
     .watch-actions {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: flex-start;
       gap: 18px;
 
@@ -1080,6 +1080,7 @@
       font-size: 10px;
       font-weight: 800;
       letter-spacing: 1.2px;
+      line-height: 1.2;
 
       cursor: pointer;
     }
@@ -1087,6 +1088,8 @@
     .subscribe-toggle {
       appearance: none;
       -webkit-appearance: none;
+
+      display: block;
 
       margin: 0;
       padding: 0;
@@ -1099,8 +1102,9 @@
       font-family: inherit;
 
       font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .15px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      line-height: 1.2;
 
       cursor: pointer;
 
@@ -2468,7 +2472,7 @@
       }
 
       .previous-months {
-        margin-top: 2px;
+        margin-top: 0;
 
         font-size: 9px;
         letter-spacing: 1px;
@@ -2476,6 +2480,7 @@
 
       .subscribe-toggle {
         font-size: 9px;
+        letter-spacing: 1px;
       }
 
       .subscribe-box {
@@ -3360,7 +3365,6 @@
       id="subscribe-box"
     >
 
-      <p style="font-size:11px;color:#ccc;margin:0 0 12px;">Weekly Review · Fridays at 9 AM Los Angeles time · Unsubscribe anytime.</p>
       <div class="subscribe-row">
 
         <button
