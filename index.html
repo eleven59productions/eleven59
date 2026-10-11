@@ -6203,7 +6203,7 @@
         const result = await response.json();
         if (!response.ok || !result.ok) throw new Error(result.error || "Could not save your subscription.");
         box.classList.remove("open");
-        confirmation.textContent = "You’re subscribed. The next Weekly Review is " + getNextFridayLabel() + " at 9 AM Los Angeles time.";
+        confirmation.textContent = "Subscription successful. The next review will be sent on " + getNextFridayLabel() + ".";
         input.value = "";
       } catch (error) {
         confirmation.textContent = error.message || "Could not save your subscription. Please try again.";
