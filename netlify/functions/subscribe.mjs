@@ -13,19 +13,24 @@ export default async (request, context) => {
   const email = String(input.email || '').trim().toLowerCase();
   if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || input.consent !== true) return json({ error: 'Enter a valid email to subscribe.' }, 400);
   if (input.website) return json({ ok: true });
+  let stage = "storage initialization";
   try {
     const db = store();
     const hash = createHash('sha256').update(`${context.ip}:${email}`).digest('hex');
     const bucket = Math.floor(Date.now() / 60000);
+    stage = "signup rate limit";
     const rate = await db.set(`signup-rate/${hash}/${bucket}`, '1', { onlyIfNew: true });
     if (!rate.modified) return json({ error: 'Please wait a minute before trying again.' }, 429);
+    stage = "contact lookup";
     let contact;
     try { contact = await api(`/contacts/${encodeURIComponent(email)}`); } catch (e) { if (e.status !== 404) throw e; }
     if (contact?.unsubscribed) return json({ error: 'This email previously unsubscribed; contact watching@eleven59.com to rejoin.' }, 409);
+    stage = "contact subscription";
     if (contact) await api(`/contacts/${encodeURIComponent(email)}/segments/${SEGMENT}`, { method: 'POST' });
     else await api('/contacts', { method: 'POST', body: { email, segments: [SEGMENT] } });
+    stage = "consent storage";
     await db.setJSON(`consent/${createHash('sha256').update(email).digest('hex')}`, { email, subscribedAt: new Date().toISOString(), source: 'website', consent: '11:59 Weekly Review every Friday at 9 AM Los Angeles time' });
     return json({ ok: true });
-  } catch { console.error('Subscription failed; check Resend and Netlify settings'); return json({ error: 'Could not save your subscription. Please try again.' }, 502); }
+  } catch (error) { console.error('Subscription failed', { stage, errorType: error.name, status: error.status || null }); return json({ error: 'Could not save your subscription. Please try again.' }, 502); }
 };
 export const config = { path: '/api/subscribe' };
