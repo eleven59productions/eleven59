@@ -2207,6 +2207,7 @@
     }
 
     .identity-overlay.show {
+      transition: none;
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
@@ -4331,7 +4332,7 @@
       identityBeatOffset = getSharedIdentityBeatIndex();
     }
 
-    function getSharedIdentityBeatIndex() {
+    function getIdentityBeatNumber() {
 
       const beatSeconds =
         getIdentityBeatSeconds();
@@ -4346,9 +4347,32 @@
           ? audio.currentTime
           : performance.now() / 1000;
 
-      return (Math.floor(elapsed / beatSeconds) - identityBeatOffset +
-        identitySequence.length) % identitySequence.length;
+      return Math.floor(elapsed / beatSeconds);
 
+    }
+
+    function getSharedIdentityBeatIndex() {
+      return (getIdentityBeatNumber() - identityBeatOffset +
+        identitySequence.length) % identitySequence.length;
+    }
+
+    function startOnNextIdentityBeat(start) {
+      const initialBeat = getIdentityBeatNumber();
+      let frame;
+      let cancelled = false;
+      function waitForBeat() {
+        if (cancelled) return;
+        if (getIdentityBeatNumber() !== initialBeat) {
+          start();
+          return;
+        }
+        frame = requestAnimationFrame(waitForBeat);
+      }
+      frame = requestAnimationFrame(waitForBeat);
+      return () => {
+        cancelled = true;
+        cancelAnimationFrame(frame);
+      };
     }
 
     let siteEntered = false;
@@ -9747,7 +9771,17 @@
     }
 
 
+    let cancelPendingIdentityStart = null;
+
     function runIdentitySequence() {
+      if (identity.running || cancelPendingIdentityStart || !siteEntered) return;
+      cancelPendingIdentityStart = startOnNextIdentityBeat(() => {
+        cancelPendingIdentityStart = null;
+        beginIdentitySequence();
+      });
+    }
+
+    function beginIdentitySequence() {
 
       if (
         identity.running ||
@@ -9825,6 +9859,10 @@
 
 
     function finishIdentity() {
+      if (cancelPendingIdentityStart) {
+        cancelPendingIdentityStart();
+        cancelPendingIdentityStart = null;
+      }
 
       if (
         !identity.running
@@ -9923,7 +9961,7 @@
         }
 
         if (
-          identity.running
+          identity.running || cancelPendingIdentityStart
         ) {
 
           finishIdentity();

@@ -10,6 +10,7 @@ const ast = parse(script, { ecmaVersion: 'latest' });
 const names = new Set(['THEME_SCHEDULE', 'sunsetModeActive', 'identitySequence',
   'isSunsetThemeTime', 'getIdentityBeatSeconds', 'getSharedIdentityBeatIndex',
   'identityBeatOffset', 'restartSharedIdentitySequence',
+  'getIdentityBeatNumber', 'startOnNextIdentityBeat',
   'identityTick', 'updateWatchingDailyPossession']);
 const source = ast.body.filter(node => names.has(node.id?.name) ||
   node.declarations?.some(d => names.has(d.id.name))).map(node => script.slice(node.start, node.end)).join('\n');
@@ -17,7 +18,7 @@ const source = ast.body.filter(node => names.has(node.id?.name) ||
 function runtime() {
   const context = vm.createContext({ Intl, Date, Object, Math, Number,
     audio: { paused: false, currentTime: 0 }, performance: { now: () => 0 },
-    requestAnimationFrame: () => 1, screenStates: [] });
+    requestAnimationFrame: () => 1, cancelAnimationFrame: () => {}, screenStates: [] });
   vm.runInContext(source + `
     const identity = { running: true, stateIndex: -1 };
     const watchingDailyPossession = { active: true, stateIndex: -1 };
@@ -81,4 +82,39 @@ test('Every activation starts red at any audio phase and continues on the next b
       assert.equal(vm.runInContext('identitySequence[getSharedIdentityBeatIndex()]', c), 'white-red');
     }
   }
+});
+
+
+test('Opening waits for a fresh beat, starts red, and keeps it until the following beat', () => {
+  for (const sunset of [false, true]) {
+    const c = runtime();
+    vm.runInContext(`sunsetModeActive = ${sunset}`, c);
+    const seconds = vm.runInContext('getIdentityBeatSeconds()', c);
+    const frames = [];
+    c.requestAnimationFrame = callback => { frames.push(callback); return frames.length; };
+    c.opened = false;
+    c.audio.currentTime = 7.85 * seconds;
+    vm.runInContext('startOnNextIdentityBeat(() => { restartSharedIdentitySequence(); opened = true; })', c);
+    frames.shift()();
+    assert.equal(c.opened, false);
+    c.audio.currentTime = 8.001 * seconds;
+    frames.shift()();
+    assert.equal(c.opened, true);
+    assert.equal(vm.runInContext('identitySequence[getSharedIdentityBeatIndex()]', c), 'red-white');
+    c.audio.currentTime = 8.99 * seconds;
+    assert.equal(vm.runInContext('identitySequence[getSharedIdentityBeatIndex()]', c), 'red-white');
+    c.audio.currentTime = 9.001 * seconds;
+    assert.equal(vm.runInContext('identitySequence[getSharedIdentityBeatIndex()]', c), 'white-red');
+  }
+});
+
+test('A cancelled pending start never opens the flashing screen', () => {
+  const c = runtime();
+  let frame;
+  c.requestAnimationFrame = callback => { frame = callback; return 1; };
+  c.opened = false;
+  vm.runInContext('const cancelStart = startOnNextIdentityBeat(() => { opened = true; }); cancelStart();', c);
+  c.audio.currentTime = 20;
+  frame();
+  assert.equal(c.opened, false);
 });
