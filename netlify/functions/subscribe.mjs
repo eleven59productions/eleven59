@@ -27,7 +27,7 @@ export default async (request, context) => {
     if (contact?.unsubscribed) return json({ error: 'This email previously unsubscribed; contact watching@eleven59.com to rejoin.' }, 409);
     stage = "contact subscription";
     if (contact) await api(`/contacts/${encodeURIComponent(email).replace(/%40/g, '@')}/segments/${SEGMENT}`, { method: 'POST' });
-    else await api('/contacts', { method: 'POST', body: { email, segments: [SEGMENT] } });
+    else await api('/contacts', { method: 'POST', body: { email, segments: [{ id: SEGMENT }] } });
     stage = "consent storage";
     await db.setJSON(`consent/${createHash('sha256').update(email).digest('hex')}`, { email, subscribedAt: new Date().toISOString(), source: 'website', consent: '11:59 Weekly Review every Friday at 9 AM Los Angeles time' });
     return json({ ok: true });
