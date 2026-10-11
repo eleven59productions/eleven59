@@ -1137,7 +1137,7 @@
     .subscribe-box {
       width: min(286px, 100%);
 
-      margin: 24px auto 0;
+      margin: 0 auto;
 
       max-height: 0;
       overflow: hidden;
@@ -1158,6 +1158,7 @@
     }
 
     .subscribe-box.open {
+      margin-top: 24px;
       max-height: 90px;
 
       opacity: 1;
@@ -2488,6 +2489,10 @@
 
       .subscribe-box {
         width: min(238px, 100%);
+        margin-top: 0;
+      }
+
+      .subscribe-box.open {
         margin-top: 20px;
       }
 
@@ -3364,6 +3369,19 @@
 
 
     <div
+      class="month-slot"
+      id="month-slot"
+    >
+
+      <div
+        class="month-row"
+        id="month-row"
+      ></div>
+
+    </div>
+
+
+    <div
       class="subscribe-box"
       id="subscribe-box"
     >
@@ -3426,19 +3444,6 @@
       role="status"
       aria-live="polite"
     ></div>
-
-
-    <div
-      class="month-slot"
-      id="month-slot"
-    >
-
-      <div
-        class="month-row"
-        id="month-row"
-      ></div>
-
-    </div>
 
 
     <div
