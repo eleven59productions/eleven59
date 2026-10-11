@@ -69,5 +69,27 @@
       "asset-1-064.b64",
       "asset-1-065.b64"
     ]
+  },
+  {
+    "file": "eleven59-theme.mp3",
+    "parts": [
+      "day-theme-000.b64",
+      "day-theme-001.b64",
+      "day-theme-002.b64",
+      "day-theme-003.b64",
+      "day-theme-004.b64",
+      "day-theme-005.b64",
+      "day-theme-006.b64",
+      "day-theme-007.b64",
+      "day-theme-008.b64",
+      "day-theme-009.b64",
+      "day-theme-010.b64",
+      "day-theme-011.b64",
+      "day-theme-012.b64",
+      "day-theme-013.b64",
+      "day-theme-014.b64",
+      "day-theme-015.b64",
+      "day-theme-016.b64"
+    ]
   }
 ]
