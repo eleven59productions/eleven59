@@ -9,6 +9,7 @@ const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 const ast = parse(script, { ecmaVersion: 'latest' });
 const names = new Set(['THEME_SCHEDULE', 'sunsetModeActive', 'identitySequence',
   'isSunsetThemeTime', 'getIdentityBeatSeconds', 'getSharedIdentityBeatIndex',
+  'identityBeatOffset', 'restartSharedIdentitySequence',
   'identityTick', 'updateWatchingDailyPossession']);
 const source = ast.body.filter(node => names.has(node.id?.name) ||
   node.declarations?.some(d => names.has(d.id.name))).map(node => script.slice(node.start, node.end)).join('\n');
@@ -59,5 +60,25 @@ test('Scheduled sunrise and sunset sources are included in the audio manifest', 
   for (const theme of ['sunrise', 'sunset']) {
     const path = vm.runInContext(`THEME_SCHEDULE.${theme}.source`, c);
     assert.ok(manifest.some(asset => path === `/media/${asset.file}`));
+  }
+});
+
+
+test('Every activation starts red at any audio phase and continues on the next beat', () => {
+  for (const sunset of [false, true]) {
+    const c = runtime();
+    vm.runInContext(`sunsetModeActive = ${sunset}`, c);
+    const seconds = vm.runInContext('getIdentityBeatSeconds()', c);
+    for (const beat of [0.2, 1.4, 2.7, 3.9, 17.3]) {
+      c.audio.currentTime = beat * seconds;
+      vm.runInContext('restartSharedIdentitySequence()', c);
+      assert.equal(vm.runInContext('identitySequence[getSharedIdentityBeatIndex()]', c), 'red-white');
+      c.screenStates.length = 0;
+      vm.runInContext('identity.stateIndex = -1; watchingDailyPossession.stateIndex = -1; identityTick(0); updateWatchingDailyPossession(0)', c);
+      assert.equal(c.screenStates[0][1], 'red-white');
+      assert.equal(c.screenStates[1][1], 'red-white');
+      c.audio.currentTime = (Math.floor(beat) + 1.01) * seconds;
+      assert.equal(vm.runInContext('identitySequence[getSharedIdentityBeatIndex()]', c), 'white-red');
+    }
   }
 });

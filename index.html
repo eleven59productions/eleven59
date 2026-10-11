@@ -4324,6 +4324,13 @@
     }
 
 
+    let identityBeatOffset = 0;
+
+    function restartSharedIdentitySequence() {
+      identityBeatOffset = 0;
+      identityBeatOffset = getSharedIdentityBeatIndex();
+    }
+
     function getSharedIdentityBeatIndex() {
 
       const beatSeconds =
@@ -4339,9 +4346,8 @@
           ? audio.currentTime
           : performance.now() / 1000;
 
-      return Math.floor(
-        elapsed / beatSeconds
-      ) % identitySequence.length;
+      return (Math.floor(elapsed / beatSeconds) - identityBeatOffset +
+        identitySequence.length) % identitySequence.length;
 
     }
 
@@ -9464,6 +9470,8 @@
       watchingDailyPossession.active =
         true;
 
+      restartSharedIdentitySequence();
+
       watchingDailyPossession.stateIndex =
         getSharedIdentityBeatIndex();
 
@@ -9756,6 +9764,8 @@
 
       identity.running =
         true;
+
+      restartSharedIdentitySequence();
 
       identity.stateIndex =
         getSharedIdentityBeatIndex();
