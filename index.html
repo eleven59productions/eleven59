@@ -1054,7 +1054,7 @@
 
     .watch-actions {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: flex-start;
       gap: 18px;
 
@@ -1065,7 +1065,9 @@
       appearance: none;
       -webkit-appearance: none;
 
-      display: block;
+      display: inline-flex;
+      align-items: center;
+      height: 12px;
 
       margin: 0;
       padding: 0;
@@ -1080,7 +1082,7 @@
       font-size: 10px;
       font-weight: 800;
       letter-spacing: 1.2px;
-      line-height: 1.2;
+      line-height: 12px;
 
       cursor: pointer;
     }
@@ -1089,7 +1091,9 @@
       appearance: none;
       -webkit-appearance: none;
 
-      display: block;
+      display: inline-flex;
+      align-items: center;
+      height: 12px;
 
       margin: 0;
       padding: 0;
@@ -1104,7 +1108,7 @@
       font-size: 10px;
       font-weight: 800;
       letter-spacing: 1.2px;
-      line-height: 1.2;
+      line-height: 12px;
 
       cursor: pointer;
 
@@ -1113,11 +1117,10 @@
       pointer-events: none;
 
       filter: blur(2px);
-      transform: translateY(5px);
+      transform: none;
 
       transition:
         opacity 1.25s ease,
-        transform 1.25s cubic-bezier(.22,1,.36,1),
         filter 1.25s ease,
         visibility 0s linear;
     }
@@ -1128,13 +1131,13 @@
       pointer-events: auto;
 
       filter: blur(0);
-      transform: translateY(0);
+      transform: none;
     }
 
     .subscribe-box {
       width: min(286px, 100%);
 
-      margin: 18px auto 0;
+      margin: 24px auto 0;
 
       max-height: 0;
       overflow: hidden;
@@ -2485,7 +2488,7 @@
 
       .subscribe-box {
         width: min(238px, 100%);
-        margin-top: 14px;
+        margin-top: 20px;
       }
 
       .subscribe-input {
