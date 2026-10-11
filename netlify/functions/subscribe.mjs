@@ -23,14 +23,14 @@ export default async (request, context) => {
     if (!rate.modified) return json({ error: 'Please wait a minute before trying again.' }, 429);
     stage = "contact lookup";
     let contact;
-    try { contact = await api(`/contacts/${encodeURIComponent(email)}`); } catch (e) { if (e.status !== 404) throw e; }
+    try { contact = await api(`/contacts/${encodeURIComponent(email).replace(/%40/g, '@')}`); } catch (e) { if (e.status !== 404) throw e; }
     if (contact?.unsubscribed) return json({ error: 'This email previously unsubscribed; contact watching@eleven59.com to rejoin.' }, 409);
     stage = "contact subscription";
-    if (contact) await api(`/contacts/${encodeURIComponent(email)}/segments/${SEGMENT}`, { method: 'POST' });
+    if (contact) await api(`/contacts/${encodeURIComponent(email).replace(/%40/g, '@')}/segments/${SEGMENT}`, { method: 'POST' });
     else await api('/contacts', { method: 'POST', body: { email, segments: [SEGMENT] } });
     stage = "consent storage";
     await db.setJSON(`consent/${createHash('sha256').update(email).digest('hex')}`, { email, subscribedAt: new Date().toISOString(), source: 'website', consent: '11:59 Weekly Review every Friday at 9 AM Los Angeles time' });
     return json({ ok: true });
-  } catch (error) { console.error('Subscription failed', { stage, errorType: error.name, status: error.status || null }); return json({ error: 'Could not save your subscription. Please try again.' }, 502); }
+  } catch (error) { console.error('Subscription failed', { stage, errorType: error.name, status: error.status || null, serviceCode: error.serviceCode || null, detail: error.serviceDetail || null }); return json({ error: 'Could not save your subscription. Please try again.' }, 502); }
 };
 export const config = { path: '/api/subscribe' };
