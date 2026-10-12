@@ -11,6 +11,7 @@ const names = new Set(['THEME_SCHEDULE', 'sunsetModeActive', 'identitySequence',
   'isSunsetThemeTime', 'getIdentityBeatSeconds', 'getSharedIdentityBeatIndex',
   'identityBeatOffset', 'restartSharedIdentitySequence',
   'getIdentityBeatNumber', 'startOnNextIdentityBeat',
+  'setSubscriptionConfirmationBeatState', 'setWatchingDailyPossessionState',
   'identityTick', 'updateWatchingDailyPossession']);
 const source = ast.body.filter(node => names.has(node.id?.name) ||
   node.declarations?.some(d => names.has(d.id.name))).map(node => script.slice(node.start, node.end)).join('\n');
@@ -18,12 +19,14 @@ const source = ast.body.filter(node => names.has(node.id?.name) ||
 function runtime() {
   const context = vm.createContext({ Intl, Date, Object, Math, Number,
     audio: { paused: false, currentTime: 0 }, performance: { now: () => 0 },
-    requestAnimationFrame: () => 1, cancelAnimationFrame: () => {}, screenStates: [] });
+    requestAnimationFrame: () => 1, cancelAnimationFrame: () => {}, screenStates: [],
+    confirmation: { dataset: { status: 'success' }, style: {} } });
+  context.document = { getElementById: () => context.confirmation };
+  context.watchingDaily = { classList: { remove: () => {}, add: state => context.screenStates.push(['daily', state]) } };
   vm.runInContext(source + `
     const identity = { running: true, stateIndex: -1 };
     const watchingDailyPossession = { active: true, stateIndex: -1 };
     function setIdentityState(state) { screenStates.push(['screen', state]); }
-    function setWatchingDailyPossessionState(state) { screenStates.push(['daily', state]); }
   `, context);
   return context;
 }
@@ -117,4 +120,24 @@ test('A cancelled pending start never opens the flashing screen', () => {
   c.audio.currentTime = 20;
   frame();
   assert.equal(c.opened, false);
+});
+
+
+test('Success text matches ticker backgrounds on every beat for both themes', () => {
+  const colors = ['#8f1616', '#fff', '#050505', '#fff'];
+  for (const sunset of [false, true]) {
+    const c = runtime();
+    vm.runInContext(`sunsetModeActive = ${sunset}`, c);
+    const seconds = vm.runInContext('getIdentityBeatSeconds()', c);
+    for (let beat = 0; beat < 8; beat++) {
+      c.audio.currentTime = (beat + 0.01) * seconds;
+      vm.runInContext('updateWatchingDailyPossession(0)', c);
+      assert.equal(c.confirmation.style.color, colors[beat % 4]);
+    }
+    c.confirmation.dataset.status = 'error';
+    c.confirmation.style.color = '#ff2a2a';
+    c.audio.currentTime = 8.01 * seconds;
+    vm.runInContext('updateWatchingDailyPossession(0)', c);
+    assert.equal(c.confirmation.style.color, '#ff2a2a');
+  }
 });

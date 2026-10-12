@@ -6230,6 +6230,8 @@
       }
       button.disabled = true;
       confirmation.classList.remove("show");
+      confirmation.dataset.status = "pending";
+      confirmation.style.color = "";
       try {
         const response = await fetch("/api/subscribe", {
           method: "POST",
@@ -6240,8 +6242,12 @@
         if (!response.ok || !result.ok) throw new Error(result.error || "Could not save your subscription.");
         box.classList.remove("open");
         confirmation.textContent = "Subscription successful.\nThe next review will be sent on " + getNextFridayLabel() + ".";
+        confirmation.dataset.status = "success";
+        setSubscriptionConfirmationBeatState(identitySequence[watchingDailyPossession.stateIndex]);
         input.value = "";
       } catch (error) {
+        confirmation.dataset.status = "error";
+        confirmation.style.color = "";
         confirmation.textContent = error.message || "Could not save your subscription. Please try again.";
       } finally {
         button.disabled = false;
@@ -9388,9 +9394,23 @@
     };
 
 
+    function setSubscriptionConfirmationBeatState(state) {
+      const confirmation = document.getElementById("subscribe-confirmation");
+      if (!confirmation || confirmation.dataset.status !== "success") return;
+      const colors = {
+        "red-white": "#8f1616",
+        "white-red": "#fff",
+        "black-white": "#050505",
+        "white-black": "#fff"
+      };
+      confirmation.style.color = colors[state] || "";
+    }
+
     function setWatchingDailyPossessionState(
       state
     ) {
+
+      setSubscriptionConfirmationBeatState(state);
 
       watchingDaily
         .classList
