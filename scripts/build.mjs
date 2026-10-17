@@ -17,5 +17,6 @@ for (const filename of ['eleven59-theme.mp3', 'asset-1.mp3']) {
   }
 }
 await copyFile('index.html', 'dist/index.html');
+await copyFile('favicon.ico', 'dist/favicon.ico');
 await writeFile('dist/reviews.json', JSON.stringify(reviews));
 console.log(`Website built with ${reviews.length} review entries`);
