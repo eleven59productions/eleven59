@@ -1563,29 +1563,8 @@
     }
 
 
-    /* Mind Control shares Q&A's restrained, centered editorial teaser layout. */
-    #watching.mind-panel {
-      top: calc(50% + 125px);
-      bottom: auto;
-      width: min(620px,calc(100vw - 64px));
-      overflow: visible;
-      padding-bottom: 0;
-      text-align: center;
-    }
-    #watching.mind-panel > :not(.mind-stage) { display: none !important; }
-    .mind-stage { width: 100%; }
-    .mind-logo {
-      color: #fff;
-      font-size: 44px;
-      font-weight: 800;
-      letter-spacing: -2px;
-      line-height: 1;
-      white-space: nowrap;
-    }
-    @media(max-width:600px) {
-      .mind-logo { font-size: clamp(27px,7.3vw,44px); letter-spacing: -1.4px; }
-    }
-
+    .mind-site-link-wrap { text-align: center; margin-top: 24px; }
+    .mind-site-link-wrap .qa-link { display: inline-block; }
     /* =========================================================
        CONTACT
     ========================================================= */
@@ -3371,14 +3350,9 @@
   ======================================================== -->
 
   <div
-    class="panel mind-panel"
+    class="panel"
     id="watching"
   >
-    <div class="qa-stage mind-stage">
-      <div class="mind-logo">MIND CONTROL</div>
-      <div class="qa-tagline">Daily reviews. Weekly essays.</div>
-      <a class="qa-link" href="https://trymindcontrol.com/">trymindcontrol.com</a>
-    </div>
 
     <div class="watch-current">
       <p id="watch-list"></p>
@@ -3490,6 +3464,10 @@
       class="description"
       id="watch-description"
     ></div>
+
+    <div class="mind-site-link-wrap">
+      <a class="qa-link" href="https://trymindcontrol.com/">trymindcontrol.com</a>
+    </div>
 
   </div>
 
