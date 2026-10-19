@@ -3466,7 +3466,7 @@
     ></div>
 
     <div class="mind-site-link-wrap">
-      <a class="qa-link" href="https://trymindcontrol.com/">trymindcontrol.com</a>
+      <a class="qa-link" href="https://trymindcontrol.com/" target="_blank" rel="noopener noreferrer" data-external-project>trymindcontrol.com</a>
     </div>
 
   </div>
@@ -3497,7 +3497,7 @@
         A new social show. Coming soon.
       </div>
 
-      <a class="qa-link" href="https://heyqanda.com/">heyqanda.com</a>
+      <a class="qa-link" href="https://heyqanda.com/" target="_blank" rel="noopener noreferrer" data-external-project>heyqanda.com</a>
 
     </div>
 
@@ -3858,6 +3858,16 @@
 
     const audio =
       document.getElementById("site-audio");
+
+    // Project links open separately and silence this site's soundtrack.
+    document.querySelectorAll('a[data-external-project]').forEach(link => {
+      link.addEventListener('click', () => {
+        const soundtrack = document.getElementById('site-audio');
+        if (soundtrack) soundtrack.pause();
+        const soundToggle = document.getElementById('sound-control');
+        if (soundToggle) soundToggle.textContent = 'SOUND OFF';
+      });
+    });
 
     const soundControl =
       document.getElementById("sound-control");
