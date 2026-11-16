@@ -3834,7 +3834,7 @@
 
   <audio
     id="site-audio"
-    src="/media/eleven59-theme.mp3"
+    src="/media/asset-1.mp3"
     preload="auto"
     loop
     playsinline
@@ -3931,10 +3931,9 @@
 
     audio.volume = .65;
 
-    const THEME_SCHEDULE = Object.freeze({
-      timeZone: "America/Los_Angeles",
-      sunrise: Object.freeze({ startHour: 9, source: "/media/eleven59-theme.mp3", bpm: 120 }),
-      sunset: Object.freeze({ startHour: 17, source: "/media/asset-1.mp3", bpm: 110 })
+    const SUNSET_THEME = Object.freeze({
+      source: "/media/asset-1.mp3",
+      bpm: 110
     });
 
     const LOS_ANGELES_COORDS = {
@@ -4313,21 +4312,14 @@
       sunsetModeActive =
         shouldUseSunsetTheme;
 
-      switchThemeAudio(
-        sunsetModeActive
-          ? THEME_SCHEDULE.sunset.source
-          : THEME_SCHEDULE.sunrise.source
-      );
+      switchThemeAudio(SUNSET_THEME.source);
 
     }
 
 
     function getIdentityBeatSeconds() {
 
-      const bpm =
-        sunsetModeActive
-          ? THEME_SCHEDULE.sunset.bpm
-          : THEME_SCHEDULE.sunrise.bpm;
+      const bpm = SUNSET_THEME.bpm;
 
       return 60 / bpm;
 
