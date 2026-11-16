@@ -4225,28 +4225,9 @@
     }
 
 
-    function isSunsetThemeTime(
-      date = new Date()
-    ) {
-
-      // Fixed daily music schedule in Los Angeles:
-      // sunrise 9 AM–5 PM; sunset 5 PM–9 AM.
-      const losAngelesHour =
-        Number(
-          new Intl.DateTimeFormat(
-            "en-US",
-            {
-              timeZone: THEME_SCHEDULE.timeZone,
-              hour: "2-digit",
-              hourCycle: "h23"
-            }
-          )
-          .format(date)
-        );
-
-      return losAngelesHour >= THEME_SCHEDULE.sunset.startHour ||
-        losAngelesHour < THEME_SCHEDULE.sunrise.startHour;
-
+    function isSunsetThemeTime() {
+      // Sunset soundtrack now runs 24 hours a day, including daytime.
+      return true;
     }
 
 
