@@ -6034,22 +6034,20 @@
     function renderMonthNavigation() {
 
       const row =
-        document.getElementById(
-          "month-row"
-        );
+        document.getElementById("month-row");
 
-      const targetMonth =
-        currentWatchMonth ===
-          "october"
-          ? "september"
-          : "october";
+      row.replaceChildren();
 
-      row.innerHTML =
-        '<button type="button" class="month-button" onclick="changeMonth(\'' +
-        targetMonth +
-        '\')">' +
-        months[targetMonth].buttonLabel +
-        '</button>';
+      watchMonthOrder
+        .filter(month => month !== currentWatchMonth)
+        .forEach(month => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "month-button";
+          button.textContent = months[month].buttonLabel;
+          button.addEventListener("click", () => changeMonth(month));
+          row.appendChild(button);
+        });
 
     }
 
